@@ -1,72 +1,41 @@
-/*
- * This is an example of a Rust smart contract with two simple, symmetric functions:
- *
- * 1. set_greeting: accepts a greeting, such as "howdy", and records it for the user (account_id)
- *    who sent the request
- * 2. get_greeting: accepts an account_id and returns the greeting saved for it, defaulting to
- *    "Hello"
- *
- * Learn more about writing NEAR smart contracts with Rust:
- * https://github.com/near/near-sdk-rs
- *
- */
-
-// To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc};
-use near_sdk::collections::LookupMap;
+use near_sdk::collections::UnorderedMap;
+use near_sdk::AccountId;
 
 setup_alloc!();
 
-// Structs in Rust are similar to other languages, and may include impl keyword as shown below
-// Note: the names of the structs are not important when calling the smart contract, but the function names are
+///for holding a contract address
+type Contract = String;
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct Welcome {
-    records: LookupMap<String, String>,
+pub struct FlatsFactory {
+    flats: UnorderedMap<AccountId, Contract>,
+    owner: AccountId
 }
 
-impl Default for Welcome {
-  fn default() -> Self {
-    Self {
-      records: LookupMap::new(b"a".to_vec()),
+impl Default for FlatsFactory {
+    fn default() -> Self {
+        panic!("Default construction should never happen");
     }
-  }
 }
 
 #[near_bindgen]
-impl Welcome {
-    pub fn set_greeting(&mut self, message: String) {
-        let account_id = env::signer_account_id();
-
-        // Use env::log to record logs permanently to the blockchain!
-        env::log(format!("Saving greeting '{}' for account '{}'", message, account_id,).as_bytes());
-
-        self.records.insert(&account_id, &message);
+impl FlatsFactory {
+    #[init]
+    pub fn new(owner: AccountId)->Self{
+        Self{
+            flats: UnorderedMap::new(b"flats".to_vec()),
+            owner
+        }
     }
 
-    // `match` is similar to `switch` in other languages; here we use it to default to "Hello" if
-    // self.records.get(&account_id) is not yet defined.
-    // Learn more: https://doc.rust-lang.org/book/ch06-02-match.html#matching-with-optiont
-    pub fn get_greeting(&self, account_id: String) -> String {
-        match self.records.get(&account_id) {
-            Some(greeting) => greeting,
-            None => "Hello".to_string(),
-        }
+    pub fn get_owner(&self)-> AccountId{
+        self.owner.clone()
     }
 }
 
-/*
- * The rest of this file holds the inline tests for the code above
- * Learn more about Rust tests: https://doc.rust-lang.org/book/ch11-01-writing-tests.html
- *
- * To run from contract directory:
- * cargo test -- --nocapture
- *
- * From project root, to run in combination with frontend tests:
- * yarn test
- *
- */
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -99,23 +68,5 @@ mod tests {
     fn set_then_get_greeting() {
         let context = get_context(vec![], false);
         testing_env!(context);
-        let mut contract = Welcome::default();
-        contract.set_greeting("howdy".to_string());
-        assert_eq!(
-            "howdy".to_string(),
-            contract.get_greeting("bob_near".to_string())
-        );
-    }
-
-    #[test]
-    fn get_default_greeting() {
-        let context = get_context(vec![], true);
-        testing_env!(context);
-        let contract = Welcome::default();
-        // this test did not call set_greeting so should return the default "Hello" greeting
-        assert_eq!(
-            "Hello".to_string(),
-            contract.get_greeting("francis.near".to_string())
-        );
     }
 }
