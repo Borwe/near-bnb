@@ -40,13 +40,16 @@ const { code } = sh.exec(buildCmd)
 // <CURRENT_DIRECTORY>/out/main.wasm
 if (code === 0 && calledFromDir !== __dirname) {
   const linkDir = `${calledFromDir}/out`
-  const link = `${calledFromDir}/out/main.wasm`
-  const packageName = require('fs').readFileSync(`${__dirname}/Cargo.toml`).toString().match(/name = "([^"]+)"/)[1]
-  const outFile = `./target/wasm32-unknown-unknown/${debug ? 'debug' : 'release'}/${packageName}.wasm`
+  const flats_wasms = ["flats_factory", "flats_contract"];
   sh.mkdir('-p', linkDir)
-  sh.rm('-f', link)
-  //fixes #831: copy-update instead of linking .- sometimes sh.ln does not work on Windows
-  sh.cp('-u',outFile,link)
+  for(let i = 0; i<flats_wasms.length;i++){
+    const packageName = flats_wasms[i];
+    const outFile = `./target/wasm32-unknown-unknown/${debug ? 'debug' : 'release'}/${packageName}.wasm`
+    const link = `${calledFromDir}/out/${packageName}.wasm`
+    sh.rm('-f', link)
+    //fixes #831: copy-update instead of linking .- sometimes sh.ln does not work on Windows
+    sh.cp('-u',outFile,link)
+  }
 }
 
 // exit script with the same code as the build command
