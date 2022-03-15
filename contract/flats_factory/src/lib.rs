@@ -1,7 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc};
-use near_sdk::collections::UnorderedMap;
-use near_sdk::{AccountId, Balance, Promise};
+use near_sdk::collections::{UnorderedMap, UnorderedSet};
+use near_sdk::{AccountId, Balance, Promise, Gas};
 use near_sdk::json_types::{U64,U128};
 use serde::{Serialize,Deserialize};
 
@@ -11,6 +11,7 @@ setup_alloc!();
 type Contract = String;
 
 const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
+const GAS: Gas = 250_000_000_000;
 
 #[derive(Serialize, Deserialize,Clone)]
 pub struct Position{
@@ -45,7 +46,7 @@ impl Flat{
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct FlatsFactory {
-    flats: UnorderedMap<AccountId, Contract>,
+    flats: UnorderedMap<AccountId, UnorderedSet<Contract>>,
     owner: AccountId
 }
 
@@ -68,7 +69,8 @@ impl FlatsFactory {
     #[payable]
     pub fn create_flat(&mut self,flat: Flat){
         assert!(env::attached_deposit()==10*NEAR, "Need to send 10 NEAR");
-        let name: String= flat.name;
+        let user_calling = env::signer_account_id();
+        let name: String= flat.name.clone();
         if name.contains('.'){
             panic!("Name of flat should not contain a '.'");
         }
@@ -79,6 +81,54 @@ impl FlatsFactory {
             .parse::<f64>().expect("Longitude didn't contain a float");
         let _latitude: f64 = flat.location.latitude.clone()
             .parse::<f64>().expect("Latitude didn't contain a float value");
+
+        //create flat account and push contract
+        let mut flat_account = flat.name.clone();
+        assert!(self.check_flat_name_available(flat_account.clone()),
+            "Flat name already taken");
+        flat_account.push_str(".");
+        flat_account.push_str(env::current_account_id().as_str());
+        let error_msg = format!("{} is not a valid NEAR account",
+                                flat_account);
+        assert!(env::is_valid_account_id(flat_account.clone().as_bytes()),
+            error_msg);
+
+        let mut input_for_map_flat_contract = 
+            format!("{{\"flat_owner\": {}, \"flat_account\":{}}}",
+                    user_calling, flat.name.clone());
+        Promise::new(flat_account).create_account()
+            .transfer(9*NEAR)
+            .deploy_contract(
+                include_bytes!("../../../out/flats_contract.wasm").to_vec())
+            .then(Promise::new(env::current_account_id())
+                  .function_call("map_flat_contract_to_user_id".try_to_vec()
+                                 .expect("Coudldn't call function map_flat_contract_to_user_id"),input_for_map_flat_contract.try_to_vec().unwrap(),0,GAS));
+    }
+
+    pub fn map_flat_contract_to_user_id(&mut self,flat_owner: AccountId
+                                        ,mut flat_account: AccountId){
+        assert!(env::current_account_id()==env::signer_account_id(),
+            "only contract can call this method");
+        match self.flats.get(&flat_owner){
+            Some(mut flats_owned) => {
+                flats_owned.insert(&flat_account);
+            },
+            None => {
+                let mut flats_owned = 
+                    UnorderedSet::new(b"flats_owned".to_vec());
+                flats_owned.insert(&flat_account);
+                self.flats.insert(&flat_owner,&flats_owned);
+            }
+        }
+    }
+
+    pub fn check_flat_name_available(&self, flat_name: String)->bool{
+        for owner in self.flats.keys(){
+            if self.flats.get(&owner).unwrap().contains(&flat_name) {
+                return false;
+            }
+        }
+        true
     }
 
     pub fn get_owner(&self)-> AccountId{
