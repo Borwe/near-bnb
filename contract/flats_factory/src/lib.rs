@@ -4,6 +4,7 @@ use near_sdk::collections::{UnorderedMap, UnorderedSet};
 use near_sdk::{AccountId, Balance, Promise, Gas};
 use near_sdk::json_types::{U64,U128};
 use serde::{Serialize,Deserialize};
+use near_sdk::serde_json;
 
 setup_alloc!();
 
@@ -11,7 +12,7 @@ setup_alloc!();
 type Contract = String;
 
 const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
-const GAS: Gas = 250_000_000_000;
+const GAS: Gas = 250_000_000_000_000;
 
 #[derive(Serialize, Deserialize,Clone)]
 pub struct Position{
@@ -50,6 +51,12 @@ pub struct FlatsFactory {
     owner: AccountId
 }
 
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize)]
+pub struct MapFlatContractIdInput{
+    flat_owner: AccountId,
+    flat_account: AccountId
+}
+
 impl Default for FlatsFactory {
     fn default() -> Self {
         panic!("Default construction should never happen");
@@ -67,7 +74,7 @@ impl FlatsFactory {
     }
 
     #[payable]
-    pub fn create_flat(&mut self,flat: Flat){
+    pub fn create_flat(&mut self,flat: Flat)-> Promise{
         assert!(env::attached_deposit()==10*NEAR, "Need to send 10 NEAR");
         let user_calling = env::signer_account_id();
         let name: String= flat.name.clone();
@@ -93,21 +100,23 @@ impl FlatsFactory {
         assert!(env::is_valid_account_id(flat_account.clone().as_bytes()),
             error_msg);
 
-        let mut input_for_map_flat_contract = 
-            format!("{{\"flat_owner\": {}, \"flat_account\":{}}}",
-                    user_calling, flat.name.clone());
+        let input_for_map_flat_contract = serde_json::to_vec(&MapFlatContractIdInput{
+            flat_owner: user_calling,
+            flat_account: flat.name.clone()
+        }).unwrap();
         Promise::new(flat_account).create_account()
             .transfer(9*NEAR)
             .deploy_contract(
                 include_bytes!("../../../out/flats_contract.wasm").to_vec())
             .then(Promise::new(env::current_account_id())
-                  .function_call("map_flat_contract_to_user_id".try_to_vec()
-                                 .expect("Coudldn't call function map_flat_contract_to_user_id"),input_for_map_flat_contract.try_to_vec().unwrap(),0,GAS));
+                  .function_call("map_flat_contract_to_user_id"
+                                 .to_string().into_bytes(),
+                 input_for_map_flat_contract,0,GAS))
     }
 
     pub fn map_flat_contract_to_user_id(&mut self,flat_owner: AccountId
-                                        ,mut flat_account: AccountId){
-        assert!(env::current_account_id()==env::signer_account_id(),
+                ,flat_account: AccountId)-> String{
+        assert!(env::current_account_id()==env::predecessor_account_id(),
             "only contract can call this method");
         match self.flats.get(&flat_owner){
             Some(mut flats_owned) => {
@@ -120,6 +129,7 @@ impl FlatsFactory {
                 self.flats.insert(&flat_owner,&flats_owned);
             }
         }
+        "DONE".to_string()
     }
 
     pub fn check_flat_name_available(&self, flat_name: String)->bool{
