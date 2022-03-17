@@ -2,7 +2,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc};
 use near_sdk::collections::{UnorderedMap, UnorderedSet};
 use near_sdk::{AccountId, Balance, Promise, Gas};
-use near_sdk::json_types::{U64,U128};
+use near_sdk::json_types::{U64};
 use serde::{Serialize,Deserialize};
 use near_sdk::serde_json;
 
