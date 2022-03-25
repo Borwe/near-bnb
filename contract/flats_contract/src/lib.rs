@@ -1,6 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc, Balance, AccountId};
-use near_sdk::collections::{LookupMap, UnorderedMap};
+use chrono::prelude::*;
+use near_sdk::collections::{LookupMap,UnorderedMap};
 use near_sdk::json_types::{U64};
 use near_sdk::serde::{Serialize, Deserialize};
 
@@ -24,16 +25,35 @@ pub struct Flat{
     pub image: Option<String>
 }
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize,Clone, BorshSerialize, BorshDeserialize)]
+pub struct Payement{
+    pub month: u32,
+    pub year: i32,
+    pub room: Room,
+    pub price: Balance
+}
+
+#[derive(Serialize, Deserialize,Clone, BorshSerialize, BorshDeserialize)]
 pub struct Room{
     /// room/house number
-    pub id: u64,
-    /// if not available currently, but soon can be, it should have a date
-    pub available_date: u128, 
+    pub room_no: u64,
     /// is available currently?
     pub is_available: bool, 
-    /// if user marked it as soon to be available
-    pub is_soon_available: bool 
+    /// show if renters account id, if their someone renting
+    pub renter: Option<AccountId>,
+    /// if available next month
+    pub will_be_available_next_month: bool
+}
+
+impl Default for Room{
+    fn default() -> Self {
+        Self{
+            room_no: 0,
+            is_available: true,
+            renter: None,
+            will_be_available_next_month: false
+        }
+    }
 }
 
 
@@ -54,7 +74,13 @@ impl Flat{
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct FlatContract {
-    rooms: UnorderedMap<Room, AccountId>
+    /// Hold room number as key, and accountID is the person renting
+    rooms_list: UnorderedMap<u64,Room>,
+    owner: AccountId,
+    /// Hold rent money needed to rent room
+    price: Balance,
+    // Hold payment data
+    payments: LookupMap<AccountId, Vec<Payement>>
 }
 
 impl Default for FlatContract {
@@ -65,6 +91,114 @@ impl Default for FlatContract {
 
 #[near_bindgen]
 impl FlatContract {
+    #[init]
+    pub fn new(account: AccountId, flat: Flat)-> Self{
+        assert!(env::state_exists()==true, "Sorry, can only be called once by contract");
+        let mut rooms_list: UnorderedMap<u64, Room> = 
+            UnorderedMap::new(b"rooms_list".to_vec());
+        for i in 0..flat.rooms.into(){
+            let mut room = Room::default();
+            let room_no: u64 = i;
+            room.room_no = room_no; 
+            rooms_list.insert(&room_no,&room);
+        }
+        Self{
+            rooms_list,
+            owner: account,
+            price: flat.price,
+            payments: LookupMap::new(b"payements".to_vec())
+        }
+    }
+
+    #[payable]
+    pub fn book_room(&mut self, room: U64)-> bool{
+        let room_no: u64 = room.into();
+        assert!(self.room_is_available(room)==true,
+            "Sorry room {} not available",
+                    room_no);
+
+        let room: Room = self.rooms_list.get(&room.into())
+            .expect("Room given doesn't exist");
+        assert!(room.is_available == true,
+                "Sorry, room {} not availbable",room_no);
+        assert!(env::attached_deposit()==self.price, 
+                "Sorry price for a room is {} NEAR"
+                        ,self.price/NEAR);
+        self.pay_room(room)
+    }
+
+    fn pay_room(&mut self,mut room: Room)-> bool{
+        let mut payement_from_user: Vec<Payement> = self.payments
+            .get(&env::signer_account_id()).unwrap_or(Vec::new());
+        let date = Utc::now();
+        room.renter = Some(env::signer_account_id());
+        room.is_available = false;
+        payement_from_user.push(Payement{
+            year: date.year(),
+            month: date.month(),
+            room: room.clone(),
+            price: env::attached_deposit()
+        });
+        //record payment by user
+        self.payments.insert(&env::signer_account_id(),&payement_from_user);
+        //update the room info
+        self.rooms_list.insert(&room.room_no,&room.clone());
+        true
+    }
+
+    pub fn not_going_to_rent_next_month(&mut self, room_no :U64)-> bool{
+        let mut room = self.rooms_list
+            .get(&room_no.into()).expect("No such room exists");
+        match room.clone().renter {
+            Some(x) => {
+                assert!(x==env::signer_account_id(),"This isn't your room");
+                room.will_be_available_next_month=true;
+                self.rooms_list.insert(&room_no.into(),&room);
+                return true;
+            },
+            None => panic!("Sorry, room wasn't rented by anybody yet")
+        };
+    }
+
+    pub fn unlock_room_for_renting(&mut self, room_no:U64)->bool {
+        assert!(self.owner == env::signer_account_id(),
+            "Method can only be called by the owner of this flat");
+        let mut room = self.rooms_list.get(&room_no.into())
+            .expect("No such room exists");
+        if room.will_be_available_next_month==true {
+            room.will_be_available_next_month=false;
+            room.is_available=true;
+            self.rooms_list.insert(&room_no.into(),&room);
+            true
+        }else{
+            false
+        }
+    }
+
+    pub fn room_is_available(&self, room: U64)-> bool{
+        if self.rooms_list.get(&room.into()).expect("No such room exists")
+            .is_available {
+            true
+        }else{
+            false
+        }
+    }
+
+    pub fn get_rooms_unrenting_next_month(&self)-> Vec<Room>{
+        let mut rooms_available_next_month = Vec::new();
+        let keys = self.rooms_list.keys();
+        for k in keys {
+            let room = self.rooms_list.get(&k).expect("Room doesn't exist");
+            if room.will_be_available_next_month == true {
+                rooms_available_next_month.push(room);
+            }
+        }
+        rooms_available_next_month
+    }
+
+    pub fn get_rooms(&self)-> U64{
+        U64::from(self.rooms_list.len())
+    }
 }
 
 #[cfg(test)]
@@ -127,23 +261,19 @@ mod tests {
         let ctx = context.clone();
         testing_env!(context);
 
-        let contract = get_dummy_flat_contract(&ctx);
+        let mut contract = get_dummy_flat_contract(&ctx);
 
-        assert!(contract.get_rooms() == flat.rooms, "Rooms didn't match");
+        assert!(contract.get_rooms() == U64::from(300), "Rooms count didn't match");
         
         //book a room
-        let book_room = 10;
-        assert!(contract.book_room(book_room)==true, "Should be able to book this room");
+        let book_room = U64::from(10);
+        assert!(contract.book_room(book_room.clone())==true, "Should be able to book this room");
 
         //see if book_room is part of available rooms, it should fail
-        assert!(contract.room_is_available(book_room)==false, "Room shouldn't be available");
-
-        //unrent room, only callable by owner of contract, so should return false, since creator of
-        //contract not bob.near
-        assert!(contract.can_call_unrent_room()==false);
+        assert!(contract.room_is_available(book_room.into())==false, "Room shouldn't be available");
 
         //I can alert the owner that next month I don't intend to keep renting
-        assert!(contract.not_going_to_rent_next_month()==true);
+        assert!(contract.not_going_to_rent_next_month(book_room)==true);
 
         let rooms_unrenting_next_month: Vec<Room> = contract.get_rooms_unrenting_next_month();// get rooms that should be available next month
         assert!(rooms_unrenting_next_month.len()>0, "bob.near set a room for unrenting, it should appear here");
@@ -154,7 +284,7 @@ mod tests {
         let ctx = context.clone();
         testing_env!(context);
 
-        let contract = get_dummy_flat_contract(&ctx);
+        let mut contract = get_dummy_flat_contract(&ctx);
         assert!(contract.unlock_room_for_renting(book_room)==true); // the room which user marked for sell
         assert!(contract.unlock_room_for_renting(book_room)==false); // should be false since room already unlocked
         assert!(contract.room_is_available(book_room)==true); //room should now be available

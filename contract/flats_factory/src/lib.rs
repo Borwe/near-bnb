@@ -95,10 +95,8 @@ impl FlatsFactory {
             "Flat name already taken");
         flat_account.push_str(".");
         flat_account.push_str(env::current_account_id().as_str());
-        let error_msg = format!("{} is not a valid NEAR account",
-                                flat_account);
         assert!(env::is_valid_account_id(flat_account.clone().as_bytes()),
-            error_msg);
+            "{} is not a valid NEAR account",flat_account);
 
         let input_for_map_flat_contract = serde_json::to_vec(&MapFlatContractIdInput{
             flat_owner: user_calling,
