@@ -10,7 +10,7 @@ import { WINDOW } from './services/window.service'
 
 describe('FlatHandlerService', () => {
   let service: FlatHandlerService;
-    let spyWindow: jasmine.SpyObj<Window>;
+  let spyWindow: jasmine.SpyObj<Window>;
   let mockWindow;
 
   beforeAll(waitForAsync(async (): Promise<void> => {
@@ -53,4 +53,7 @@ describe('FlatHandlerService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  describe('Factory', ()=>{
+  })
 });

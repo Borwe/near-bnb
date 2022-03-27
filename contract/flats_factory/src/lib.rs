@@ -67,6 +67,7 @@ impl Default for FlatsFactory {
 impl FlatsFactory {
     #[init]
     pub fn new(owner: AccountId)->Self{
+        assert!(env::state_exists()==false, "Sorry state already exists");
         Self{
             flats: UnorderedMap::new(b"flats".to_vec()),
             owner
