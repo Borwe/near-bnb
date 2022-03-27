@@ -23,32 +23,36 @@ sh.cd(__dirname)
 // --debug`. Let's set a variable to track whether `--debug` was used.
 const debug = process.argv.pop() === '--debug'
 
-// You can call this script with `node compile.js` or `node compile.js --debug`.
-// Let's set a variable to track whether `--debug` was used.
-// Note: see other flags in ./cargo/config. Unfortunately, you cannot set the
-// `--target option` in Cargo.toml.
-const buildCmd = debug
-  ? 'cargo build --target wasm32-unknown-unknown'
-  : 'cargo build --target wasm32-unknown-unknown --release'
+const buildFlatFactoryCmd = debug
+  ? 'cargo build --target wasm32-unknown-unknown -p flats_factory'
+  : 'cargo build --target wasm32-unknown-unknown -p flats_factory --release'
 
-// Execute the build command, storing exit code for later use
-const { code } = sh.exec(buildCmd)
+const buildFlatContractCmd = debug
+  ? 'cargo build --target wasm32-unknown-unknown -p flats_contract'
+  : 'cargo build --target wasm32-unknown-unknown -p flats_contract --release'
 
-// Assuming this is compiled from the root project directory, link the compiled
-// contract to the `out` folder –
-// When running commands like `near deploy`, near-cli looks for a contract at
-// <CURRENT_DIRECTORY>/out/main.wasm
+const { code } = sh.exec(buildFlatContractCmd)
+
+
 if (code === 0 && calledFromDir !== __dirname) {
   const linkDir = `${calledFromDir}/out`
-  const flats_wasms = ["flats_factory", "flats_contract"];
+  const flats_wasms = ["flats_contract", "flats_factory"];
   sh.mkdir('-p', linkDir)
   for(let i = 0; i<flats_wasms.length;i++){
     const packageName = flats_wasms[i];
     const outFile = `./target/wasm32-unknown-unknown/${debug ? 'debug' : 'release'}/${packageName}.wasm`
     const link = `${calledFromDir}/out/${packageName}.wasm`
     sh.rm('-f', link)
-    //fixes #831: copy-update instead of linking .- sometimes sh.ln does not work on Windows
-    sh.cp('-u',outFile,link)
+
+    if(packageName=="flats_contract"){
+      sh.cp('-u',outFile,link)
+    }else{
+      if(sh.exec(buildFlatFactoryCmd)==0){
+        sh.cp('-u',outFile,link)
+      }else{
+        console.error("Error building flat_factory")
+      }
+    }
   }
 }
 
