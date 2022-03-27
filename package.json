@@ -14,7 +14,7 @@
     "prestart": "npm run build:contract && npm run dev:deploy:contract",
     "start": "echo The app is starting! It will automatically open in your browser when ready && node set-contract-name.js && ng serve --open",
     "dev": "nodemon --watch contract/src -e rs --exec \"npm run start\"",
-    "test:contract": "cd contract && cargo test -- --nocapture",
+    "test:contract": "cd contract && RUST_BACKTRACE=full cargo test -- --nocapture",
     "contract:doc": "cd contract && cargo doc --open",
     "test": "npm run build:contract:debug && npm run test:contract && cd .. && ng test",
     "lint": "ng lint"

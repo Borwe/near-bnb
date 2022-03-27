@@ -208,6 +208,7 @@ dependencies = [
 name = "flats_factory"
 version = "0.1.0"
 dependencies = [
+ "flats_contract",
  "near-sdk",
  "serde",
 ]
