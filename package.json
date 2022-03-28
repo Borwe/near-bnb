@@ -17,6 +17,7 @@
     "test:contract": "cd contract && RUST_BACKTRACE=full cargo test -- --nocapture",
     "contract:doc": "cd contract && cargo doc --open",
     "test": "npm run build:contract:debug && npm run test:contract && cd .. && ng test",
+    "test_service:flat_handler": "ng test --include app/flat-handler*",
     "lint": "ng lint"
   },
   "private": true,
