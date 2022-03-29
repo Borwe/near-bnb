@@ -45,7 +45,6 @@ export class AppComponent implements OnInit {
 
   async fetchGreeting(): Promise<void> {
     if (this.signedIn) {
-      this.greeting = this.newGreeting = await this.window.contract.get_greeting({ account_id: this.accountId })
     }
   }
 
@@ -60,7 +59,6 @@ export class AppComponent implements OnInit {
 
     try {
       // make an update call to the smart contract
-      await this.window.contract.set_greeting({ message: greeting.value })
     } catch (e) {
       alert(
         'Something went wrong! ' +

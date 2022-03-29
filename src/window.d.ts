@@ -1,8 +1,15 @@
 import { Contract, WalletConnection } from 'near-api-js'
+import { Flat } from './app/models/Models';
 
 interface MyContract extends Contract {
-  set_greeting(value: { message: string }): void
-  get_greeting(value: { account_id: string }): string | null
+  create_flat(value: { flat: Flat }, gas: string, pay: string): string 
+  map_flat_contract_to_user_id(value: { 
+    flat_owner: string,
+    flat_account: string
+  }): void
+
+  check_flat_name_available(value: { flat_name: string }): boolean
+  get_owner(): string
 }
 
 declare global {

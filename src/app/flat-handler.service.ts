@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import { WINDOW } from './services/window.service';
 import { login, logout } from '../utils';
+import { Flat } from './models/Models';
+import { utils } from 'near-api-js'
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +13,22 @@ export class FlatHandlerService {
 
   public isSignedIn(){
     return this.window.walletConnection.isSignedIn();
+  }
+
+  public async getOwnerOfContract(): Promise<string>{
+    return window.contract.get_owner();
+  }
+
+  public async createFlat(flat: Flat): Promise<string>{
+    return window.contract.create_flat({
+      flat: flat
+    },"300000000000000",utils.format.parseNearAmount("10"));
+  }
+
+  public async checkIfNameAvailable(name: string): Promise<boolean>{
+    return window.contract.check_flat_name_available({
+      flat_name: name
+    });
   }
 
   public signInWallet(){

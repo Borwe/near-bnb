@@ -11,7 +11,8 @@ import {ACCOUNT, PRIVATE_KEY} from '../../neardev/test_obj';
 
 import { WINDOW, WINDOW_PROVIDERS } from './services/window.service'
 import { KeyPairEd25519 } from 'near-api-js/lib/utils';
-import { keyStores, connect, Account} from 'near-api-js';
+import { keyStores, connect, Account, utils} from 'near-api-js';
+import { Flat, Position } from './models/Models';
 
 describe('FlatHandlerService', () => {
   let service: FlatHandlerService;
@@ -20,17 +21,18 @@ describe('FlatHandlerService', () => {
 
   beforeAll(waitForAsync(async (): Promise<void> => {
 
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000000000;
+
     TestBed.configureTestingModule({
       imports: [BrowserModule, ],
       providers: [
         WINDOW_PROVIDERS,FlatHandlerService
       ]
     }).compileComponents();
-    await initContract();
-    spyWindow = TestBed.inject(WINDOW) as Window;
+
 
     let browserkeys = new keyStores.BrowserLocalStorageKeyStore();
-    await browserkeys.setKey( spyWindow.walletConnection._networkId,
+    await browserkeys.setKey( "testnet",
       ACCOUNT, KeyPairEd25519.fromString(PRIVATE_KEY));
 
     let config = {
@@ -44,6 +46,10 @@ describe('FlatHandlerService', () => {
 
     let near = await connect(config);
     account = await near.account(ACCOUNT);
+
+    await initContract(account);
+    spyWindow = TestBed.inject(WINDOW) as Window;
+
 
     service = TestBed.inject(FlatHandlerService);
   }))
@@ -59,6 +65,36 @@ describe('FlatHandlerService', () => {
     expect(await account.state()).toBeTruthy();
     expect(account.accountId === ACCOUNT ).toBeTrue();
   });
+
+  it('Try get owner of the factory contract', async()=>{
+    expect(await service.getOwnerOfContract()==="borwe.testnet").toBeTrue();
+  })
+
+  it("Try check if flat contract exists",async()=>{
+    let random_name_might_exist = "vescon_ke254";
+    if(await service.checkIfNameAvailable(random_name_might_exist) === true){
+      let position = new Position();
+      position.latitude = "1.0000";
+      position.longitude = "1.0000";
+      //create a flat
+      let flat = new Flat();
+      let features = new Array<string>();
+      features.push("Fuck yeah");
+      features.push("Cool");
+      flat.name = random_name_might_exist;
+      flat.rooms = "300";
+      flat.price =  utils.format.parseNearAmount("10");
+      flat.location = position;
+      flat.features = features;
+      flat.image = "http://google.com";
+      console.log("FLAT: ",flat);
+      await service.createFlat(flat);
+      //and now the check should fail
+      expect(await service
+        .checkIfNameAvailable(random_name_might_exist) == false)
+        .toBeTrue();
+    }
+  })
 
   it('should be created', () => {
     expect(service).toBeTruthy();

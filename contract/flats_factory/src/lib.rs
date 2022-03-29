@@ -14,13 +14,13 @@ type Contract = String;
 const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
 const GAS: Gas = 250_000_000_000_000;
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize,Clone, Debug)]
 pub struct Position{
     pub latitude: String,
     pub longitude: String
 }
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize,Clone, Debug)]
 pub struct Flat{
     pub name: String,
     pub rooms: U64,
@@ -180,6 +180,22 @@ mod tests {
         testing_env!(ctx);
         let contract = FlatsFactory::new(context.signer_account_id.clone());
         assert!(contract.get_owner()==context.signer_account_id.clone(),"signer not equal contract owner");
+    }
+
+    #[test]
+    fn show_flat_structure(){
+        let name = "borwe_towers".to_string();
+        let rooms = U64::from(300);
+        let price = NEAR*15; // how much it costs to rent a room in the flat
+        let location = Position{latitude:"-1.227807".to_string(),longitude:"36.989969".to_string()};
+        let features = vec!["Wifi".to_string(),
+            "2 Swimming pools".to_string(),
+            "Big open compound".to_string(),
+            "alot of greenarie".to_string()];
+        let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
+        let flat = Flat::new(name,rooms,price,location,
+                             Some(features),Some(image));
+        println!("Flat: {:?}",flat);
     }
 
     #[test]

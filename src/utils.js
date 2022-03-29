@@ -6,7 +6,7 @@ const nearConfig = getConfig('development')
 console.log(nearConfig)
 
 // Initialize contract & set global variables
-export async function initContract() {
+export async function initContract(account=undefined) {
   // Initialize connection to the NEAR testnet
   const near = await connect(Object.assign({ deps: { keyStore: new keyStores.BrowserLocalStorageKeyStore() } }, nearConfig))
 
@@ -18,7 +18,8 @@ export async function initContract() {
   window.accountId = window.walletConnection.getAccountId()
 
   // Initializing our contract APIs by contract name and configuration
-  window.contract = await new Contract(window.walletConnection.account(),
+  window.contract = await new Contract(
+    account!==undefined?account:window.walletConnection.account(),
     nearConfig.contractName, {
     changeMethods: ['create_flat', 'map_flat_contract_to_user_id'],
     viewMethods: ['check_flat_name_available', 'get_owner'],

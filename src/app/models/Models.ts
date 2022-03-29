@@ -5,9 +5,9 @@ export class Position{
 
 export class Flat{
   public name: string;
-  public rooms: number;
+  public rooms: string;
   public price: string;
   public location: Position;
-  public features: Array<string> | null;
-  public image: string | null;
+  public features?: Array<string>;
+  public image?: string;
 }
