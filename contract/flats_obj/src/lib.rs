@@ -1,9 +1,10 @@
 use serde::{Serialize,Deserialize};
 use near_sdk::Balance;
 use near_sdk::json_types::U64;
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 
 /// Represents a flat
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize,Clone, BorshDeserialize, BorshSerialize)]
 pub struct Flat{
     /// Flat name
     pub name: String,
@@ -24,6 +25,10 @@ impl Flat{
             features: Option<Vec<String>>, image: Option<String>)->Self{
         assert!(location.clone().split(',').into_iter().count()==2,
             "Sorry, not valid with latitude and longitude");
+        assert!(name.len()>0, "Name can't be empt");
+        let rooms_count: u64 = rooms.into();
+        assert!(rooms_count>0, "Rooms must be more than 1");
+        assert!(price>0, "Price can not be free");
         Self{
             name,
             rooms,

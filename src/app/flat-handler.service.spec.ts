@@ -12,7 +12,7 @@ import {ACCOUNT, PRIVATE_KEY} from '../../neardev/test_obj';
 import { WINDOW, WINDOW_PROVIDERS } from './services/window.service'
 import { KeyPairEd25519 } from 'near-api-js/lib/utils';
 import { keyStores, connect, Account, utils} from 'near-api-js';
-import { Flat, Position } from './models/Models';
+import { Flat } from './models/Models';
 
 describe('FlatHandlerService', () => {
   let service: FlatHandlerService;
@@ -73,9 +73,6 @@ describe('FlatHandlerService', () => {
   it("Try check if flat contract exists",async()=>{
     let random_name_might_exist = "vescon_ke254";
     if(await service.checkIfNameAvailable(random_name_might_exist) === true){
-      let position = new Position();
-      position.latitude = "1.0000";
-      position.longitude = "1.0000";
       //create a flat
       let flat = new Flat();
       let features = new Array<string>();
@@ -84,9 +81,9 @@ describe('FlatHandlerService', () => {
       flat.name = random_name_might_exist;
       flat.rooms = "300";
       flat.price =  utils.format.parseNearAmount("10");
-      flat.location = position;
-      flat.features = features;
-      flat.image = "http://google.com";
+      flat.location = "1.00";
+      flat.features = undefined;
+      flat.image = undefined;
       console.log("FLAT: ",flat);
       await service.createFlat(flat);
       //and now the check should fail

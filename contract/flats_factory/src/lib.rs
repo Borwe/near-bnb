@@ -4,6 +4,7 @@ use near_sdk::collections::{UnorderedMap, UnorderedSet};
 use near_sdk::{AccountId, Balance, Promise, Gas};
 use serde::{Serialize,Deserialize};
 use near_sdk::serde_json;
+use near_sdk::json_types::U64;
 use flats_obj::Flat;
 
 setup_alloc!();
@@ -45,16 +46,25 @@ impl FlatsFactory {
     }
 
     #[payable]
-    pub fn create_flat(&mut self,flat: Flat)-> Promise{
+    pub fn create_flat(&mut self,
+        name: String,
+        rooms: U64,
+        price: Balance,
+        location: String,
+        features: Option<Vec<String>>,
+        image: Option<String>) -> Promise {
+
         assert!(env::attached_deposit()==10*NEAR, "Need to send 10 NEAR");
         let user_calling = env::signer_account_id();
+        let flat = Flat::new(name,rooms,price,location,features,image);
+
         let name: String= flat.name.clone();
         if name.contains('.'){
             panic!("Name of flat should not contain a '.'");
         }
+
         assert!(env::is_valid_account_id(name.as_bytes()), 
                 "Please pass valid near account name as account name");
-        assert!(u64::from(flat.rooms)>0, "Can not have a flat with no rooms");
         flat.assert_location_valid();
 
         //create flat account and push contract
@@ -168,9 +178,8 @@ mod tests {
             "Big open compound".to_string(),
             "alot of greenarie".to_string()];
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
-        let flat = Flat::new(name,rooms,price,location,
-                             Some(features),Some(image));
 
-        contract.create_flat(flat.clone());
+        contract.create_flat(name,rooms,price,
+                 location,Some(features),Some(image));
     }
 }
