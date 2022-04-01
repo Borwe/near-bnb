@@ -15,16 +15,19 @@ pub struct Flat{
     /// Location of the flat
     pub location: String,
     /// Features helpd by the flat
-    pub features: Option<Vec<String>>,
+    pub features: Vec<String>,
     /// Image if the flat
-    pub image: Option<String>
+    pub image: String
 }
 
 impl Flat{
     pub fn new(name: String, rooms: U64, price: Balance,location: String,
-            features: Option<Vec<String>>, image: Option<String>)->Self{
+            features: String, image: String)->Self{
+
         assert!(location.clone().split(',').into_iter().count()==2,
             "Sorry, not valid with latitude and longitude");
+
+        
         assert!(name.len()>0, "Name can't be empt");
         let rooms_count: u64 = rooms.into();
         assert!(rooms_count>0, "Rooms must be more than 1");
@@ -34,7 +37,9 @@ impl Flat{
             rooms,
             price,
             location,
-            features,
+            features: features.split(",")
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>(),
             image
         }
     }
@@ -58,14 +63,11 @@ mod tests{
         let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
         let location = "1.000,1.000";
-        let features = vec!["Wifi".to_string(),
-            "2 Swimming pools".to_string(),
-            "Big open compound".to_string(),
-            "alot of greenarie".to_string()];
+        let features = "Wifi, 2 Swimming pools".to_string();
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
 
         let _flat = Flat::new(name,rooms,price,
-              location.to_string(), Some(features),Some(image));
+              location.to_string(), features,image);
 
     }
 
@@ -77,13 +79,10 @@ mod tests{
         let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
         let location = "1.000,1.000,1.000";
-        let features = vec!["Wifi".to_string(),
-            "2 Swimming pools".to_string(),
-            "Big open compound".to_string(),
-            "alot of greenarie".to_string()];
+        let features = "Wifi,2 Swimming pools".to_string();
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
 
         let _flat = Flat::new(name,rooms,price,
-              location.to_string(), Some(features),Some(image));
+              location.to_string(), features,image);
     }
 }

@@ -75,15 +75,12 @@ describe('FlatHandlerService', () => {
     if(await service.checkIfNameAvailable(random_name_might_exist) === true){
       //create a flat
       let flat = new Flat();
-      let features = new Array<string>();
-      features.push("Fuck yeah");
-      features.push("Cool");
       flat.name = random_name_might_exist;
       flat.rooms = "300";
-      flat.price =  utils.format.parseNearAmount("10");
-      flat.location = "1.00";
-      flat.features = undefined;
-      flat.image = undefined;
+      flat.price =  1000;
+      flat.location = "1.00,1.00";
+      flat.features = "Fuck yeah, Cool";
+      flat.image = "https://google.com";
       console.log("FLAT: ",flat);
       await service.createFlat(flat);
       //and now the check should fail

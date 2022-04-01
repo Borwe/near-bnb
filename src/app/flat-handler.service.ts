@@ -20,9 +20,8 @@ export class FlatHandlerService {
   }
 
   public async createFlat(flat: Flat): Promise<string>{
-    return window.contract.create_flat({
-      flat: flat
-    },"300000000000000",utils.format.parseNearAmount("10"));
+    return window.contract.create_flat(
+      flat ,"300000000000000",utils.format.parseNearAmount("10"));
   }
 
   public async checkIfNameAvailable(name: string): Promise<boolean>{

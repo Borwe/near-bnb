@@ -241,13 +241,10 @@ mod tests {
         let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
         let location = "-1.227807,36.989969".to_string();
-        let features = vec!["Wifi".to_string(),
-            "2 Swimming pools".to_string(),
-            "Big open compound".to_string(),
-            "alot of greenarie".to_string()];
+        let features = "Wifi,2 Swimming pools".to_string();
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
         let flat = Flat::new(name,rooms,price,location,
-                             Some(features),Some(image));
+                             features,image);
 
         // borwe.near is the creator of the contract
         FlatContract::new("borwe.near".to_string(),flat)

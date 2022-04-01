@@ -2,7 +2,7 @@ import { Contract, WalletConnection } from 'near-api-js'
 import { Flat } from './app/models/Models';
 
 interface MyContract extends Contract {
-  create_flat(value: { flat: Flat }, gas: string, pay: string): string 
+  create_flat(value: Flat, gas: string, pay: string): string 
   map_flat_contract_to_user_id(value: { 
     flat_owner: string,
     flat_account: string
