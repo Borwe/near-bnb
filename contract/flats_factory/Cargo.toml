@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 near-sdk = "3.1.0"
 serde = "1.0.6"
-flats_contract = {path = "../flats_contract"}
+flats_obj = {path = "../flats_obj"}
 
 [profile.release]
 codegen-units = 1

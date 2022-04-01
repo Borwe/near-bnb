@@ -200,6 +200,7 @@ name = "flats_contract"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "flats_obj",
  "near-sdk",
  "serde",
 ]
@@ -208,7 +209,15 @@ dependencies = [
 name = "flats_factory"
 version = "0.1.0"
 dependencies = [
- "flats_contract",
+ "flats_obj",
+ "near-sdk",
+ "serde",
+]
+
+[[package]]
+name = "flats_obj"
+version = "0.1.0"
+dependencies = [
  "near-sdk",
  "serde",
 ]

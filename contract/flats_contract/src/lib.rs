@@ -4,26 +4,11 @@ use chrono::prelude::*;
 use near_sdk::collections::{LookupMap,UnorderedMap};
 use near_sdk::json_types::{U64};
 use near_sdk::serde::{Serialize, Deserialize};
+use flats_obj::Flat;
 
 setup_alloc!();
 
 const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
-
-#[derive(Serialize, Deserialize,Clone)]
-pub struct Position{
-    pub latitude: String,
-    pub longitude: String
-}
-
-#[derive(Serialize, Deserialize,Clone)]
-pub struct Flat{
-    pub name: String,
-    pub rooms: U64,
-    pub price: Balance,
-    pub location: Position,
-    pub features: Option<Vec<String>>,
-    pub image: Option<String>
-}
 
 #[derive(Serialize, Deserialize,Clone, BorshSerialize, BorshDeserialize)]
 pub struct Payement{
@@ -56,21 +41,6 @@ impl Default for Room{
     }
 }
 
-
-impl Flat{
-    pub fn new(name: String,rooms: U64,price: Balance,location: Position,
-            features: Option<Vec<String>>,image: Option<String>)->Self{
-        Self{
-            name,
-            rooms,
-            price,
-            location,
-            features,
-            image
-        }
-    }
-}
-
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct FlatContract {
@@ -99,6 +69,7 @@ impl FlatContract {
         //assert!(env::state_exists()==true, "Sorry, can only be called once by contract");
         let mut rooms_list: UnorderedMap<u64, Room> = 
             UnorderedMap::new(b"rooms_list".to_vec());
+        flat.assert_location_valid();
         for i in 0..flat.rooms.into(){
             let mut room = Room::default();
             let room_no: u64 = i;
@@ -121,6 +92,7 @@ impl FlatContract {
         //assert!(env::state_exists()==true, "Sorry, can only be called once by contract");
         let mut rooms_list: UnorderedMap<u64, Room> = 
             UnorderedMap::new(b"rooms_list".to_vec());
+        flat.assert_location_valid();
         for i in 0..flat.rooms.into(){
             let mut room = Room::default();
             let room_no: u64 = i;
@@ -268,7 +240,7 @@ mod tests {
         let name = ctx.current_account_id.clone();
         let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
-        let location = Position{latitude:"-1.227807".to_string(),longitude:"36.989969".to_string()};
+        let location = "-1.227807,36.989969".to_string();
         let features = vec!["Wifi".to_string(),
             "2 Swimming pools".to_string(),
             "Big open compound".to_string(),
@@ -283,7 +255,7 @@ mod tests {
 
     #[test]
     fn test_handling_rooms() {
-        let mut context = get_context("bob.near".to_string(),vec![],NEAR*15,false,None);
+        let context = get_context("bob.near".to_string(),vec![],NEAR*15,false,None);
         let ctx = context.clone();
 
         testing_env!(ctx);

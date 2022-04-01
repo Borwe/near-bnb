@@ -1,0 +1,9 @@
+[package]
+name = "flats_obj"
+version = "0.1.0"
+authors = ["Brian Orwe <brian.orwe@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+serde = "1.0.6"
+near-sdk = "3.1.0"

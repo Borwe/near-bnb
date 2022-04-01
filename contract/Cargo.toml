@@ -1,2 +1,2 @@
 [workspace]
-members = ["flats_contract","flats_factory"]
+members = ["flats_contract","flats_factory","flats_obj"]

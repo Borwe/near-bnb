@@ -2,9 +2,9 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc};
 use near_sdk::collections::{UnorderedMap, UnorderedSet};
 use near_sdk::{AccountId, Balance, Promise, Gas};
-use near_sdk::json_types::{U64};
 use serde::{Serialize,Deserialize};
 use near_sdk::serde_json;
+use flats_obj::Flat;
 
 setup_alloc!();
 
@@ -13,36 +13,6 @@ type Contract = String;
 
 const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
 const GAS: Gas = 250_000_000_000_000;
-
-#[derive(Serialize, Deserialize,Clone, Debug)]
-pub struct Position{
-    pub latitude: String,
-    pub longitude: String
-}
-
-#[derive(Serialize, Deserialize,Clone, Debug)]
-pub struct Flat{
-    pub name: String,
-    pub rooms: U64,
-    pub price: Balance,
-    pub location: Position,
-    pub features: Option<Vec<String>>,
-    pub image: Option<String>
-}
-
-impl Flat{
-    pub fn new(name: String,rooms: U64,price: Balance,location: Position,
-            features: Option<Vec<String>>,image: Option<String>)->Self{
-        Self{
-            name,
-            rooms,
-            price,
-            location,
-            features,
-            image
-        }
-    }
-}
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -85,10 +55,7 @@ impl FlatsFactory {
         assert!(env::is_valid_account_id(name.as_bytes()), 
                 "Please pass valid near account name as account name");
         assert!(u64::from(flat.rooms)>0, "Can not have a flat with no rooms");
-        let _longitude: f64 = flat.location.longitude.clone()
-            .parse::<f64>().expect("Longitude didn't contain a float");
-        let _latitude: f64 = flat.location.latitude.clone()
-            .parse::<f64>().expect("Latitude didn't contain a float value");
+        flat.assert_location_valid();
 
         //create flat account and push contract
         let mut flat_account = flat.name.clone();
@@ -148,6 +115,7 @@ impl FlatsFactory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use near_sdk::json_types::U64;
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
 
@@ -183,22 +151,6 @@ mod tests {
     }
 
     #[test]
-    fn show_flat_structure(){
-        let name = "borwe_towers".to_string();
-        let rooms = U64::from(300);
-        let price = NEAR*15; // how much it costs to rent a room in the flat
-        let location = Position{latitude:"-1.227807".to_string(),longitude:"36.989969".to_string()};
-        let features = vec!["Wifi".to_string(),
-            "2 Swimming pools".to_string(),
-            "Big open compound".to_string(),
-            "alot of greenarie".to_string()];
-        let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
-        let flat = Flat::new(name,rooms,price,location,
-                             Some(features),Some(image));
-        println!("Flat: {:?}",flat);
-    }
-
-    #[test]
     fn test_creating_flat_contract() {
         let context = get_context(vec![],10*NEAR, false);
         let ctx = context.clone();
@@ -210,7 +162,7 @@ mod tests {
         let name = "borwe_towers".to_string();
         let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
-        let location = Position{latitude:"-1.227807".to_string(),longitude:"36.989969".to_string()};
+        let location = "-1.227807,36.989969".to_string();
         let features = vec!["Wifi".to_string(),
             "2 Swimming pools".to_string(),
             "Big open compound".to_string(),
