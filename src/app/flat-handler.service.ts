@@ -30,6 +30,10 @@ export class FlatHandlerService {
     });
   }
 
+  public async getAviailableFlats(): Promise<Array<String>>{
+    return window.contract.get_all_flats();
+  }
+
   public signInWallet(){
     login();
   }

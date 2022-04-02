@@ -97,6 +97,7 @@ impl FlatsFactory {
         match self.flats.get(&flat_owner){
             Some(mut flats_owned) => {
                 flats_owned.insert(&flat_account);
+                self.flats.insert(&flat_owner,&flats_owned);
             },
             None => {
                 let mut flats_owned = 
@@ -115,6 +116,17 @@ impl FlatsFactory {
             }
         }
         true
+    }
+
+    pub fn get_all_flats(&self)-> Vec<Contract>{
+        let mut contracts = Vec::new();
+
+        for owner in self.flats.keys(){
+            for c in self.flats.get(&owner).unwrap().iter(){
+                contracts.push(c.clone());
+            }
+        }
+        contracts
     }
 
     pub fn get_owner(&self)-> AccountId{

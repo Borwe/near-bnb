@@ -10,6 +10,7 @@ interface MyContract extends Contract {
 
   check_flat_name_available(value: { flat_name: string }): boolean
   get_owner(): string
+  get_all_flats(): Array<String>
 }
 
 declare global {

@@ -70,25 +70,34 @@ describe('FlatHandlerService', () => {
     expect(await service.getOwnerOfContract()==="borwe.testnet").toBeTrue();
   })
 
-  it("Try check if flat contract exists",async()=>{
-    let random_name_might_exist = "vescon_ke254";
-    if(await service.checkIfNameAvailable(random_name_might_exist) === true){
-      //create a flat
-      let flat = new Flat();
-      flat.name = random_name_might_exist;
-      flat.rooms = "300";
-      flat.price =  1000;
-      flat.location = "1.00,1.00";
-      flat.features = "Fuck yeah, Cool";
-      flat.image = "https://google.com";
-      console.log("FLAT: ",flat);
-      await service.createFlat(flat);
-      //and now the check should fail
-      expect(await service
-        .checkIfNameAvailable(random_name_might_exist) == false)
-        .toBeTrue();
+  it("Try check if flat contract exists, and try getting list of contracts",async()=>{
+    let version = Math.floor(Math.random()*1000);
+    let random_name_might_exist = "vescon_ke254_v"+version;
+    while(await service.checkIfNameAvailable(random_name_might_exist) === false){
+      version = Math.floor(Math.random()*1000);
+      random_name_might_exist = "vescon_ke254_v"+version;
     }
+    //create a flat
+    let flat = new Flat();
+    flat.name = random_name_might_exist;
+    flat.rooms = "300";
+    flat.price =  1000;
+    flat.location = "1.00,1.00";
+    flat.features = "Fuck yeah, Cool";
+    flat.image = "https://google.com";
+    await service.createFlat(flat);
+    //and now the check should fail
+    expect(await service
+      .checkIfNameAvailable(random_name_might_exist) == false)
+      .toBeTrue();
+    
+    let flats: Array<String> = await service.getAviailableFlats();
+    expect(flats.length>0).toBeTrue();
+    expect(flats.
+      find((contract)=> contract.toLowerCase() === flat.name.toLowerCase())!== undefined)
+      .toBeTrue();
   })
+
 
   it('should be created', () => {
     expect(service).toBeTruthy();
