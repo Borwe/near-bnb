@@ -1,15 +1,12 @@
 use serde::{Serialize,Deserialize};
 use near_sdk::Balance;
-use near_sdk::json_types::U64;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 
 /// Represents a flat
 #[derive(Serialize, Deserialize,Clone, BorshDeserialize, BorshSerialize)]
-pub struct Flat{
+pub struct House{
     /// Flat name
     pub name: String,
-    /// Flat number of rooms
-    pub rooms: U64,
     /// Flat price for renting a room
     pub price: Balance,
     /// Location of the flat
@@ -20,8 +17,8 @@ pub struct Flat{
     pub image: String
 }
 
-impl Flat{
-    pub fn new(name: String, rooms: U64, price: Balance,location: String,
+impl House{
+    pub fn new(name: String, price: Balance,location: String,
             features: String, image: String)->Self{
 
         assert!(location.clone().split(',').into_iter().count()==2,
@@ -29,12 +26,9 @@ impl Flat{
 
         
         assert!(name.len()>0, "Name can't be empt");
-        let rooms_count: u64 = rooms.into();
-        assert!(rooms_count>0, "Rooms must be more than 1");
         assert!(price>0, "Price can not be free");
         Self{
             name,
-            rooms,
             price,
             location,
             features: features.split(",")
@@ -60,13 +54,12 @@ mod tests{
     fn test_flat_creation(){
         
         let name = "borwe_towers".to_string();
-        let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
         let location = "1.000,1.000";
         let features = "Wifi, 2 Swimming pools".to_string();
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
 
-        let _flat = Flat::new(name,rooms,price,
+        let _flat = House::new(name,price,
               location.to_string(), features,image);
 
     }
@@ -76,13 +69,12 @@ mod tests{
     fn test_flat_creation_failure(){
 
         let name = "borwe_towers".to_string();
-        let rooms = U64::from(300);
         let price = NEAR*15; // how much it costs to rent a room in the flat
         let location = "1.000,1.000,1.000";
         let features = "Wifi,2 Swimming pools".to_string();
         let image = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/d3/c1/64/exterior.jpg?w=800&h=-1&s=1".to_string();
 
-        let _flat = Flat::new(name,rooms,price,
+        let _flat = House::new(name,price,
               location.to_string(), features,image);
     }
 }
