@@ -58,7 +58,7 @@ impl HouseContract {
     #[cfg(target_arch = "wasm32")]
     #[init]
     pub fn new(account: AccountId, house: House)-> Self{
-        assert!(env::state_exists()==true, "Sorry, can only be called once by contract");
+        assert!(env::state_exists()==false, "Sorry, can only be called once by contract");
         house.assert_location_valid();
         Self{
             house,
@@ -117,6 +117,10 @@ impl HouseContract {
             Some(_) => false,
             None => true
         }
+    }
+
+    pub fn get_owner(&self)-> String{
+        self.owner.clone()
     }
 }
 
