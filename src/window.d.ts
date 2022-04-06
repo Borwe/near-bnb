@@ -1,16 +1,11 @@
 import { Contract, WalletConnection } from 'near-api-js'
-import { Flat } from './app/models/Models';
+import { House, HouseName } from './app/models/Models';
 
 interface MyContract extends Contract {
-  create_flat(value: Flat, gas: string, pay: string): string 
-  map_flat_contract_to_user_id(value: { 
-    flat_owner: string,
-    flat_account: string
-  }): void
-
-  check_flat_name_available(value: { flat_name: string }): boolean
+  create_house(value: House, gas: string, pay: string): string 
+  check_house_name_available(value: HouseName ): boolean
   get_owner(): string
-  get_all_flats(): Array<String>
+  get_all_houses(): Array<String>
 }
 
 declare global {

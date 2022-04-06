@@ -1,1 +1,1 @@
-module.exports = 'flats.borwe.testnet'
+module.exports = 'hse.borwe.testnet'

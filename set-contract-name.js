@@ -3,7 +3,7 @@ require('dotenv').config({ path: './neardev/dev-account.env' })
 const colors = require('colors')
 
 const targetPath = './src/contract-name.js'
-const contractNameFileContent = `module.exports = '${process.env.CONTRACT_NAME || 'flats.borwe.testnet'}'`
+const contractNameFileContent = `module.exports = '${process.env.CONTRACT_NAME || 'hse.borwe.testnet'}'`
 
 console.log(colors.magenta('The file `contract-name.js` will be written with the following content: \n'))
 console.log(colors.grey(`${contractNameFileContent}\n`))

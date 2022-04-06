@@ -12,7 +12,7 @@ import {ACCOUNT, PRIVATE_KEY} from '../../neardev/test_obj';
 import { WINDOW, WINDOW_PROVIDERS } from './services/window.service'
 import { KeyPairEd25519 } from 'near-api-js/lib/utils';
 import { keyStores, connect, Account, utils} from 'near-api-js';
-import { Flat } from './models/Models';
+import { House, HouseName } from './models/Models';
 
 describe('FlatHandlerService', () => {
   let service: FlatHandlerService;
@@ -72,29 +72,30 @@ describe('FlatHandlerService', () => {
 
   it("Try check if flat contract exists, and try getting list of contracts",async()=>{
     let version = Math.floor(Math.random()*1000);
-    let random_name_might_exist = "vescon_ke254_v"+version;
-    while(await service.checkIfNameAvailable(random_name_might_exist) === false){
+    let houseName = new HouseName();
+    houseName.house_name = "vescon_build_"+version;
+    while(await service.checkIfNameAvailable(houseName) === false){
       version = Math.floor(Math.random()*1000);
-      random_name_might_exist = "vescon_ke254_v"+version;
+      houseName.house_name = "vescon_build_"+version;
+
     }
     //create a flat
-    let flat = new Flat();
-    flat.name = random_name_might_exist;
-    flat.rooms = "300";
-    flat.price =  1000;
-    flat.location = "1.00,1.00";
-    flat.features = "Fuck yeah, Cool";
-    flat.image = "https://google.com";
-    await service.createFlat(flat);
+    let house = new House();
+    house.name = houseName.house_name;
+    house.price =  utils.format.parseNearAmount("10");
+    house.location = "1.00,1.00";
+    house.features = "Fuck yeah, Cool";
+    house.image = "https://google.com";
+    await service.createHouse(house);
     //and now the check should fail
     expect(await service
-      .checkIfNameAvailable(random_name_might_exist) == false)
+      .checkIfNameAvailable(houseName) == false)
       .toBeTrue();
     
-    let flats: Array<String> = await service.getAviailableFlats();
+    let flats: Array<String> = await service.getAviailableHouses();
     expect(flats.length>0).toBeTrue();
     expect(flats.
-      find((contract)=> contract.toLowerCase() === flat.name.toLowerCase())!== undefined)
+      find((contract)=> contract.toLowerCase() === house.name.toLowerCase())!== undefined)
       .toBeTrue();
   })
 
