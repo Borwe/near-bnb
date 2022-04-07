@@ -7,7 +7,7 @@ import { utils } from 'near-api-js'
 @Injectable({
   providedIn: 'root'
 })
-export class FlatHandlerService {
+export class HouseHandlerService {
 
   constructor(@Inject(WINDOW) private window: Window) { }
 

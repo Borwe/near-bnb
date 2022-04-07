@@ -1,7 +1,7 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { BrowserModule } from '@angular/platform-browser'
 
-import { FlatHandlerService } from './flat-handler.service';
+import { HouseHandlerService } from './house-handler.service';
 import {initContract} from '../utils'
 
 
@@ -15,7 +15,7 @@ import { keyStores, connect, Account, utils} from 'near-api-js';
 import { House, HouseName } from './models/Models';
 
 describe('FlatHandlerService', () => {
-  let service: FlatHandlerService;
+  let service: HouseHandlerService;
   let spyWindow: Window;
   let account: Account;
 
@@ -26,7 +26,7 @@ describe('FlatHandlerService', () => {
     TestBed.configureTestingModule({
       imports: [BrowserModule, ],
       providers: [
-        WINDOW_PROVIDERS,FlatHandlerService
+        WINDOW_PROVIDERS,HouseHandlerService
       ]
     }).compileComponents();
 
@@ -51,7 +51,7 @@ describe('FlatHandlerService', () => {
     spyWindow = TestBed.inject(WINDOW) as Window;
 
 
-    service = TestBed.inject(FlatHandlerService);
+    service = TestBed.inject(HouseHandlerService);
   }))
 
 

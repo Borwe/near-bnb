@@ -1,5 +1,5 @@
 {
-  "name": "flats",
+  "name": "house",
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
@@ -17,7 +17,7 @@
     "test:contract": "cd contract && RUST_BACKTRACE=full cargo test -- --nocapture",
     "contract:doc": "cd contract && cargo doc --open",
     "test": "npm run build:contract:debug && npm run test:contract && cd .. && ng test",
-    "test_service:flat_handler": "ng test --include app/flat-handler*",
+    "test_service:house_handler": "ng test --include app/house-handler*",
     "lint": "ng lint"
   },
   "private": true,

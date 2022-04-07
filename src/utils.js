@@ -21,7 +21,7 @@ export async function initContract(account=undefined) {
   window.contract = await new Contract(
     account!==undefined?account:window.walletConnection.account(),
     nearConfig.contractName, {
-    changeMethods: ['create_house', 'map_house_contract_to_user_id'],
+    changeMethods: ['create_house'],
     viewMethods: ['check_house_name_available',
      'get_all_houses','get_owner'],
   })
