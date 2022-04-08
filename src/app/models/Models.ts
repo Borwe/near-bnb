@@ -1,9 +1,13 @@
 export class House{
-  public name: string;
-  public price: string;
-  public location: string;
-  public features: string;
-  public image: string;
+  name: string;
+  price: string;
+  location: string;
+  features: string;
+  image: string;
+}
+
+export class Date{
+  day: number; month: number; year: number
 }
 
 export class HouseName{ house_name: string }

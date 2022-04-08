@@ -27,6 +27,16 @@ export async function initContract(account=undefined) {
   })
 }
 
+export async function setupHouseContract(
+  house_contract_name, account=undefined){
+  window.houseContract = await new Contract(
+    account!==undefined?account:window.walletConnection.account(),
+    house_contract_name, {
+    changeMethods: ['book_house'],
+    viewMethods: ['check_date_available', 'get_owner'],
+  })
+}
+
 export function logout() {
   window.walletConnection.signOut()
   // reload page

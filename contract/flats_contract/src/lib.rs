@@ -1,8 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, setup_alloc, Balance, AccountId};
+use near_sdk::{env, near_bindgen, setup_alloc, Balance, AccountId, Timestamp};
 use near_sdk::collections::LookupMap;
 use near_sdk::serde::{Serialize, Deserialize};
-use chrono::prelude::*;
 use flats_obj::House;
 
 setup_alloc!();
@@ -11,7 +10,7 @@ const NEAR: Balance = 1_000_000_000_000_000_000_000_000;
 
 #[derive(Serialize, Deserialize,Clone, BorshSerialize, BorshDeserialize)]
 pub struct Payement{
-    pub date_of_payment: crate::Date,
+    pub time_of_payment: Timestamp,
     pub book_date: crate::Date,
     pub price: Balance
 }
@@ -96,13 +95,11 @@ impl HouseContract {
     fn pay_house(&mut self, day: u32, month: u32, year: i32)-> bool{
         let mut payement_from_user: Vec<Payement> = self.payments
             .get(&env::signer_account_id()).unwrap_or(Vec::new());
-        let date = Utc::now();
-        let date_of_payment = crate::Date::new(date.day(),
-            date.month(), date.year());
+        let time_of_payment = env::block_timestamp();
         let book_date = crate::Date::new(day,month,year);
         self.booked.insert(&book_date,&env::signer_account_id());
         payement_from_user.push(Payement{
-            date_of_payment,
+            time_of_payment,
             book_date,
             price: env::attached_deposit()
         });
