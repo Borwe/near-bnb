@@ -12,6 +12,7 @@ interface HouseContract extends Contract {
   book_house(date: Date, gas: string, pay: string): boolean;
   check_date_available(date: Date): boolean;
   get_owner(): boolean;
+  verify(date: Date, gas: string, pay: string): boolean;
 }
 
 declare global {

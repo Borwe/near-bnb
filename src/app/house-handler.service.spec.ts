@@ -116,7 +116,17 @@ describe('FlatHandlerService', () => {
     expect(await service.checkHouseAvailable(date)===false)
       .toBeTrue();
 
-    //user should now be able to unbook, and house should be available again
+    //user to verify when they visit at the door
+    expect(await service.verifyUserBooked(date) === true)
+      .toBeTrue();
+
+    //verify should fail when done on a date not booked
+    let date2 = new Date();
+    date2.day = 4;
+    date2.year = 2022;
+    date2.month = 2;
+    expect(await service.verifyUserBooked(date2) === false)
+      .toBeTrue();
   })
 });
 

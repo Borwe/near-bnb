@@ -68,6 +68,7 @@ impl HouseContract {
     }
 
 
+
     /// This is only used on tests, ignore this version
     #[cfg(not(target_arch = "wasm32"))]
     #[init]
@@ -78,6 +79,22 @@ impl HouseContract {
             owner: account,
             booked: BookedDatesByAccounts::new(b"books".to_vec()),
             payments: LookupMap::new(b"payements".to_vec()),
+        }
+    }
+
+
+    /// For verifying if the user is the one who rented
+    pub fn verify(&mut self, day: u32, month: u32, year: i32)-> bool{
+        let date = Date::new(day,month,year);
+        match self.booked.get(&date) {
+            Some(x) => {
+                if x==env::signer_account_id() {
+                    true
+                }else{
+                    false
+                }
+            },
+            None => false
         }
     }
 

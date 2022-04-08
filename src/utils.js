@@ -32,7 +32,7 @@ export async function setupHouseContract(
   window.houseContract = await new Contract(
     account!==undefined?account:window.walletConnection.account(),
     house_contract_name, {
-    changeMethods: ['book_house'],
+    changeMethods: ['book_house','verify'],
     viewMethods: ['check_date_available', 'get_owner'],
   })
 }

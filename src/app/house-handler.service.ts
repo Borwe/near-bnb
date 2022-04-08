@@ -31,6 +31,11 @@ export class HouseHandlerService {
     return this.window.houseContract.check_date_available(date);
   }
 
+  public async verifyUserBooked(date: Date): Promise<boolean>{
+    return this.window.houseContract.verify(date,
+      "300000000000000", "0");
+  }
+
   public async bookHouse(date: Date, amount: string): Promise<boolean>{
     return this.window.houseContract.book_house(date,
       "300000000000000", utils.format.parseNearAmount(amount));
