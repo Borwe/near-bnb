@@ -1,8 +1,9 @@
 use serde::{Serialize,Deserialize};
 use near_sdk::Balance;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::json_types::U128;
 
-/// Represents a flat
+/// Represents a house
 #[derive(Serialize, Deserialize,Clone, BorshDeserialize, BorshSerialize)]
 pub struct House{
     /// Flat name
@@ -15,6 +16,34 @@ pub struct House{
     pub features: Vec<String>,
     /// Image if the flat
     pub image: String
+}
+
+
+/// Represents a house info, as json
+#[derive(Serialize, Deserialize,Clone, BorshDeserialize, BorshSerialize)]
+pub struct HouseInfo{
+    /// Flat name
+    pub name: String,
+    /// Flat price for renting a room
+    pub price: U128,
+    /// Location of the flat
+    pub location: String,
+    /// Features helpd by the flat
+    pub features: Vec<String>,
+    /// Image if the flat
+    pub image: String
+}
+
+impl HouseInfo{
+    pub fn new(house: House)->Self{
+        Self{
+            name: house.name,
+            price: U128::from(house.price),
+            location: house.location,
+            features: house.features,
+            image: house.image
+        }
+    }
 }
 
 impl House{

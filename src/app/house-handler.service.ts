@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { WINDOW } from './services/window.service';
 import { login, logout, setupHouseContract } from '../utils';
-import { House, HouseName, Date } from './models/Models';
+import { House, HouseInfo, HouseName, Date } from './models/Models';
 import { utils, Account } from 'near-api-js'
 import getConfig  from '../config'
 
@@ -29,6 +29,12 @@ export class HouseHandlerService {
 
   public async checkHouseAvailable(date: Date): Promise<boolean>{
     return this.window.houseContract.check_date_available(date);
+  }
+
+  public async getHouseInfo(account: Account | undefined
+    ,house: House, env:string): Promise<HouseInfo>{
+    await this.setHouseContract(account, house, env);
+    return this.window.houseContract.get_house_info();
   }
 
   public async verifyUserBooked(date: Date): Promise<boolean>{

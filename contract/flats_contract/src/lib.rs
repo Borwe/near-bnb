@@ -2,7 +2,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen, setup_alloc, Balance, AccountId, Timestamp};
 use near_sdk::collections::LookupMap;
 use near_sdk::serde::{Serialize, Deserialize};
-use flats_obj::House;
+use flats_obj::{House,HouseInfo};
 
 setup_alloc!();
 
@@ -135,6 +135,10 @@ impl HouseContract {
 
     pub fn get_owner(&self)-> String{
         self.owner.clone()
+    }
+
+    pub fn get_house_info(self)->HouseInfo{
+        HouseInfo::new(self.house.clone())
     }
 }
 

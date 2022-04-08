@@ -12,7 +12,7 @@ import {ACCOUNT, PRIVATE_KEY} from '../../neardev/test_obj';
 import { WINDOW, WINDOW_PROVIDERS } from './services/window.service'
 import { KeyPairEd25519 } from 'near-api-js/lib/utils';
 import { keyStores, connect, Account, utils} from 'near-api-js';
-import { House, HouseName, Date } from './models/Models';
+import { House, HouseInfo, HouseName, Date } from './models/Models';
 
 describe('FlatHandlerService', () => {
   let service: HouseHandlerService;
@@ -21,7 +21,7 @@ describe('FlatHandlerService', () => {
 
   beforeAll(waitForAsync(async (): Promise<void> => {
 
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000000000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000000000000;
 
     TestBed.configureTestingModule({
       imports: [BrowserModule, ],
@@ -127,6 +127,13 @@ describe('FlatHandlerService', () => {
     date2.month = 2;
     expect(await service.verifyUserBooked(date2) === false)
       .toBeTrue();
+
+    //check if info of current house is okay
+    let houseInfo: HouseInfo =
+      await service.getHouseInfo(account, house, "testnet");
+    console.log("printing dummy, to avoid timeout");
+    expect(houseInfo.name === house.name).toBeTrue();
+    expect(houseInfo.price === house.price).toBeTrue();
   })
 });
 

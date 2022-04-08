@@ -33,7 +33,8 @@ export async function setupHouseContract(
     account!==undefined?account:window.walletConnection.account(),
     house_contract_name, {
     changeMethods: ['book_house','verify'],
-    viewMethods: ['check_date_available', 'get_owner'],
+    viewMethods: ['check_date_available',
+      'get_house_info', 'get_owner'],
   })
 }
 

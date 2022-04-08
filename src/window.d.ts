@@ -1,5 +1,5 @@
 import { Contract, WalletConnection } from 'near-api-js'
-import { Date , House, HouseName } from './app/models/Models';
+import { Date , House, HouseName, HouseInfo } from './app/models/Models';
 
 interface MainContract extends Contract {
   create_house(value: House, gas: string, pay: string): string 
@@ -13,6 +13,7 @@ interface HouseContract extends Contract {
   check_date_available(date: Date): boolean;
   get_owner(): boolean;
   verify(date: Date, gas: string, pay: string): boolean;
+  get_house_info(): HouseInfo;
 }
 
 declare global {
