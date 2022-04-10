@@ -1,9 +1,50 @@
-## :construction::construction_worker: UNDER CONSTRUCTION :construction::construction_worker:
 
-flats
-==================
 
-This [Angular] app was initialized with [create-near-app]
+# NEAR-BNB
+
+An implementation for managing housing similar to how BNB works.
+
+### How it works:
+
+- Each owner of the house generates a contract for their own house.
+- Each house, get's a contract.
+- A user/renter can then book to rent the house at a specific date
+- The user/renter should verify ownership at the place before entering.
+- Currency used is NEAR.
+
+### Requirements:
+
+- Angular cli, for running tests
+- node >=12 with npm.
+- Rust and cargo, for compiling the contracts
+- Near cli
+
+### Steps:
+
+1. ```bash
+   npm run setup
+   ```
+
+   Setup the contract name from env file in **./neardev/dev-account.env** which should look like this:
+
+   ```bash
+   MAIN_CONTRACT_ADDRESS = "hse.borwe.testnet";
+   ```
+
+   This will be the contract address to be used for deploying the contract after building, make sure the file exists, or it would default to `hse.borwe.testnet` also make sure the MAIN_CONTRACT_ADDRESS, contains an actual existing address in testnet, otherwise it would fail. when it comes to deploying the contract.
+
+2. ```bash
+   npm run deploy:contract
+   ```
+
+   This builds, the contracts, and deploys the main one
+
+3. ```bash
+   npm run test_service
+   ```
+
+   This will run the tests, and simulate what a user might perform on your contracts.
+
 
 
 Quick Start
