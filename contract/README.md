@@ -1,20 +1,21 @@
-flats Smart Contract
+flats Smart Contracts
 ==================
+A set of two smart contracts, one a factory that generates the other.
 
-A [smart contract] written in [Rust] for an app initialized with [create-near-app]
+flat_factory
+=============
+Contract used to create flat_contract contracts, which in themselves are individual rooms or houses that represent a single bed and breakfast unit which includes it's own price, location, and availability dates which a user then interacts with. Only the Admin or owner of the flat/housing unit, interacts with this contract to produce a unit.
 
-
-Quick Start
-===========
-
-Before you compile this code, you will need to install Rust with [correct target]
+flat_contract
+==============
+Contract representing a single housing unit, which ordinary users can check for availability and book specific days. All payment records are stored and easily retrievable.
 
 
 Exploring The Code
 ==================
 
-1. The main smart contract code lives in `src/lib.rs`. You can compile it with
-   the `./compile` script.
+1. The flats_factory contract is located in ./flats_factory.
+2. The flats_contract contract is located in ./flats_contract.
 2. Tests: You can run smart contract tests with the `./test` script. This runs
    standard Rust tests using [cargo] with a `--nocapture` flag so that you
    can see any debug info you print to the console.
