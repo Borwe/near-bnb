@@ -17,49 +17,45 @@ An implementation for managing housing similar to how BNB works.
 - Angular cli, for running tests
 - node >=12 with npm.
 - Rust and cargo, for compiling the contracts
-- Near cli
+- Near cli (install via `npm install --global near-cli`)
 
 ### Steps:
 
 1. ```bash
+   near login
+   ```
+   Login with the testnet account used for deploying and doing tests
+
+
+2. ```bash
+   npm install
+   ```
+   Installs the dependencies required to run tests and following steps
+
+
+3. ```bash
    npm run setup
    ```
 
-   Setup the contract name from env file in **./neardev/dev-account.env** which should look like this:
+   Sets up the contract name from env file in **./neardev/dev-account.env** which should look like this:
 
    ```bash
-   MAIN_CONTRACT_ADDRESS = "hse.borwe.testnet";
+   MAIN_CONTRACT_ADDRESS = "hse.borwe2.testnet";
    ```
 
-   This will be the contract address to be used for deploying the contract after building, make sure the file exists, or it would default to `hse.borwe.testnet` also make sure the MAIN_CONTRACT_ADDRESS, contains an actual existing address in testnet, otherwise it would fail. when it comes to deploying the contract.
+   This will be the contract address to be used for deploying the contract after building, make sure the file exists, or it would default to `hse.borwe2.testnet` also make sure the MAIN_CONTRACT_ADDRESS, contains an actual existing address in testnet, otherwise it would fail. when it comes to deploying the contract.
 
-2. ```bash
+4. ```bash
    npm run deploy:contract
    ```
 
-   This builds, the contracts, and deploys the main one
+   This builds, the contracts, and deploys the main one, also requires the **./neardev/dev-account.env** to exist, from previous step.
 
-3. ```bash
+5. ```bash
    npm run test_service
    ```
 
    This will run the tests, and simulate what a user might perform on your contracts.
-
-
-
-Quick Start
-===========
-
-To run this project locally:
-
-1. Prerequisites: Make sure you've installed [Node.js] ≥ 12
-2. Install dependencies: `npm install`
-3. Run the local development server: `npm run dev` (see `package.json` for a
-   full list of `scripts` you can run with `npm`)
-
-Now you'll have a local development environment backed by the NEAR TestNet!
-
-Go ahead and play with the app and the code. As you make code changes, the app will automatically reload.
 
 
 Exploring The Code
@@ -74,59 +70,6 @@ Exploring The Code
    contract. See `contract/README` for info about how it's tested. The frontend
    code gets tested with [karma + jasmine]. You can run both of these at once with `npm
    run test`.
-
-
-Deploy
-======
-
-Every smart contract in NEAR has its [own associated account][NEAR accounts]. When you run `npm run dev`, your smart contract gets deployed to the live NEAR TestNet with a throwaway account. When you're ready to make it permanent, here's how.
-
-
-Step 0: Install near-cli (optional)
--------------------------------------
-
-[near-cli] is a command line interface (CLI) for interacting with the NEAR blockchain. It was installed to the local `node_modules` folder when you ran `npm install`, but for best ergonomics you may want to install it globally:
-
-    npm install --global near-cli
-
-Or, if you'd rather use the locally-installed version, you can prefix all `near` commands with `npx`
-
-Ensure that it's installed with `near --version` (or `npx near --version`)
-
-
-Step 1: Create an account for the contract
-------------------------------------------
-
-Each account on NEAR can have at most one contract deployed to it. If you've already created an account such as `your-name.testnet`, you can deploy your contract to `flats.your-name.testnet`. Assuming you've already created an account on [NEAR Wallet], here's how to create `flats.your-name.testnet`:
-
-1. Authorize NEAR CLI, following the commands it gives you:
-
-      near login
-
-2. Create a subaccount (replace `YOUR-NAME` below with your actual account name):
-
-      near create-account flats.YOUR-NAME.testnet --masterAccount YOUR-NAME.testnet
-
-
-Step 2: set contract name in code
----------------------------------
-
-Modify the line in `src/config.js` that sets the account name of the contract. Set it to the account id you used above.
-
-    const CONTRACT_NAME = process.env.CONTRACT_NAME || 'flats.YOUR-NAME.testnet'
-
-
-Step 3: deploy!
----------------
-
-One command:
-
-    npm run deploy
-
-As you can see in `package.json`, this does two things:
-
-1. builds & deploys smart contract to NEAR TestNet
-2. builds & deploys frontend code to GitHub using [gh-pages]. This will only work if the project already has a repository set up on GitHub. Feel free to modify the `deploy` script in `package.json` to deploy elsewhere.
 
 
 Troubleshooting

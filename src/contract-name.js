@@ -1,1 +1,1 @@
-module.exports = '"hse2.borwe.testnet";'
+module.exports = 'hse.borwe2.testnet'
