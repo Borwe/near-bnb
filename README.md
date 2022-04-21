@@ -2,12 +2,12 @@
 
 # NEAR-BNB
 
-An implementation for managing housing similar to how BNB works.
+An implementation for managing housing similar to how Air-BNB works.
 
 ### How it works:
 
-- Each owner of the house generates a contract for their own house.
-- Each house, get's a contract.
+- Each owner of the house generates a contract for their own house or unit.
+- Each house or unit, get's a contract.
 - A user/renter can then book to rent the house at a specific date
 - The user/renter should verify ownership at the place before entering.
 - Currency used is NEAR.
