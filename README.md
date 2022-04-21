@@ -44,12 +44,17 @@ An implementation for managing housing similar to how BNB works.
    ```
 
    This will be the contract address to be used for deploying the contract after building, make sure the file exists, or it would default to `hse.borwe2.testnet` also make sure the MAIN_CONTRACT_ADDRESS, contains an actual existing address in testnet, otherwise it would fail. when it comes to deploying the contract.
+   
+   Make sure that the sub address matches your account that you used in previous command of **`near login`**, eg: if account was **borwe2.testnet**, then the main account address will be hse.**borwe2.testnet**
 
+   
 4. ```bash
    npm run deploy:contract
    ```
 
    This builds, the contracts, and deploys the main one, also requires the **./neardev/dev-account.env** to exist, from previous step.
+
+   This command will prompt user for account to be used as owner of the main contract, this will be admin account id for that contract. **Pass in the account you used in near login for it to work**.
 
 5. ```bash
    npm run test_service
