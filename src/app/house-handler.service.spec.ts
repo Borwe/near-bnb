@@ -67,7 +67,7 @@ describe('FlatHandlerService', () => {
   });
 
   it('Try get owner of the factory contract', async()=>{
-    expect(await service.getOwnerOfContract()==="borwe.testnet").toBeTrue();
+    expect(await service.getOwnerOfContract()===ACCOUNT).toBeTrue();
   })
 
   it("Try check if flat contract exists, and try getting list of contracts",async()=>{

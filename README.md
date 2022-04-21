@@ -62,6 +62,20 @@ An implementation for managing housing similar to how BNB works.
 
    This will run the tests, and simulate what a user might perform on your contracts.
 
+   Must have a typescript file at **./neardev/test_obj.ts** which contains the information for the test to use, which should follow the following setup
+
+   ```typescript
+    export const ACCOUNT = "borwe2.testnet";
+    export const PRIVATE_KEY = "ed25519:SOMETHINGSOMETHING12312321432545";
+   ```
+
+   The `PRIVATE_KEY` Can be found from the home directory at:
+   ```
+   ~/.near-credentials/testnet/account.name.json
+   ```
+   Here `account.name` being the account id you used during login in the first command. eg: borwe2.testnet would be mine, which should be also the value you put in the `ACCOUNT` variable on the **./neardev/test_obj.ts** file
+
+   NOTE: private key starts from the string `ed25519:` inclusive.
 
 Exploring The Code
 ==================
